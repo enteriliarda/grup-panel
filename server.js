@@ -73,20 +73,20 @@ app.get("/", (req, res) => {
 });
 
 // Login sayfası
-app.get("/login", (req, res) => {
-    res.sendFile(__dirname + "/views/login.html");
-});
+app.post('/login', (req, res) => {
+  const { username, password } = req.body;
 
-// Login POST
-app.post("/login", (req, res) => {
-    const { username, password } = req.body;
-    db.get("SELECT * FROM users WHERE username = ?", [username], async (err, user) => {
-        if (!user) return res.send("Kullanıcı bulunamadı.");
-        const match = await bcrypt.compare(password, user.password);
-        if (!match) return res.send("Şifre yanlış.");
-        req.session.user = user;
-        res.redirect("/dashboard");
-    });
+  db.get("SELECT * FROM users WHERE username = ?", [username], async (err, user) => {
+    if (!user) return res.send("Kullanıcı bulunamadı!");
+
+    const match = await bcrypt.compare(password, user.password);
+    if (match) {
+      req.session.user = user;
+      res.redirect('/dashboard');
+    } else {
+      res.send("Şifre yanlış!");
+    }
+  });
 });
 
 // Dashboard
