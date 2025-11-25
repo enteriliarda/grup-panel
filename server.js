@@ -153,3 +153,23 @@ db.run(`CREATE TABLE IF NOT EXISTS users (
   password TEXT
 )`);
 
+}));
+
+// Kayıt sayfasını göster
+app.get('/register', (req, res) => {
+  res.sendFile(__dirname + '/views/register.html');
+});
+
+// Kayıt işlemi
+app.post('/register', async (req, res) => {
+  const { username, password } = req.body;
+  const hash = await bcrypt.hash(password, 10); // şifreyi güvenli sakla
+
+  db.run("INSERT INTO users(username, password) VALUES(?, ?)", [username, hash], function(err) {
+    if (err) {
+      return res.send("Bu kullanıcı adı zaten alınmış!");
+    }
+    res.send("Kayıt başarılı! <a href='/login'>Giriş yap</a>");
+  });
+});
+
